@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" translate="no" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>رثاء الطف</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header>
+        <h1 id="app-title">رثاء الطف</h1>
+    </header>
+
+    <main id="main-content">
+        
+        <section id="section-audio" class="tab-content active">
+            <div style="margin-bottom: 20px; padding: 0 10px;">
+                <div style="position: relative;">
+                    <input type="text" id="search-audio-input" placeholder="ابحث عن قصيدة أو رادود..." onkeyup="searchAudio()" style="padding-right: 40px; margin-bottom: 0;">
+                    <i class="fa-solid fa-search gold-text" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); font-size: 18px;"></i>
+                </div>
+            </div>
+            
+            <div id="audio-list"></div>
+        </section>
+
+        <section id="section-poets" class="tab-content">
+            <div id="weekly-contest-board" class="premium-board">
+                <h3 id="contest-title" class="gold-text" style="margin-bottom: 10px;">📜 قوانين المسابقة</h3>
+                <p id="contest-desc" class="amiri-text" style="color: var(--text-main);">
+                    يتم اختيار الفائز أسبوعياً بأعلى نسبة إعجابات.<br>
+                    تُعرض القصيدة الفائزة لمدة 3 أيام.<br>
+                    يجب أن تليق القصائد برثاء أهل البيت (ع).
+                </p>
+            </div>
+            <h3 id="poets-title" class="section-heading gold-text" style="text-align: center; margin-bottom: 15px;">القصائد المنشورة</h3>
+            <div id="community-poems-list"></div>
+        </section>
+
+        <section id="section-publish" class="tab-content">
+            <div id="login-container" class="form-container premium-card text-center">
+                <h2 id="login-title" class="gold-text" style="margin-bottom: 15px;">تسجيل الدخول مطلوب</h2>
+                <p id="login-desc" class="amiri-text" style="color: var(--text-muted); margin-bottom: 25px;">لحماية المسابقة، يجب تسجيل الدخول بحساب Google لنشر القصائد أو الإعجاب بها.</p>
+                <button onclick="signInWithGoogle()" class="gold-btn" style="display: flex; align-items: center; justify-content: center; gap: 10px; margin: 0 auto; background: #fff; color: #333; font-family: 'Cairo', sans-serif;">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" width="20" height="20">
+                    <span id="login-btn-text">المتابعة باستخدام Google</span>
+                </button>
+            </div>
+
+            <div id="username-container" class="form-container premium-card text-center" style="display: none;">
+                <h2 id="username-title" class="gold-text" style="margin-bottom: 15px;">اختر اسم الحساب</h2>
+                <p id="username-desc" class="amiri-text" style="color: var(--text-muted); margin-bottom: 20px;">هذا الاسم سيكون معرفك الفريد في التطبيق.</p>
+                <input type="text" id="choose-username-input" placeholder="اكتب اسم الحساب" required>
+                <button onclick="saveUsername()" id="save-username-btn" class="gold-btn">حفظ الاسم</button>
+            </div>
+
+            <div id="publish-container" class="form-container premium-card" style="display: none; padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h2 id="publish-main-title" class="gold-text" style="margin: 0;">انشر موهبتك</h2>
+                    <button onclick="signOut()" style="background: none; border: none; color: #ff4c4c; cursor: pointer; font-family: 'Cairo', sans-serif; font-size: 14px;">
+                        <i class="fa-solid fa-right-from-bracket"></i> <span id="logout-text">خروج</span>
+                    </button>
+                </div>
+                <input type="text" id="pub-name" placeholder="اسم الشاعر (يظهر للقصيدة)" required>
+                <input type="text" id="pub-title" placeholder="اسم القصيدة" required>
+                <textarea id="pub-poem" placeholder="اكتب القصيدة كاملة هنا..." rows="8" required></textarea>
+                <button onclick="submitPoem()" id="pub-btn" class="gold-btn">نشر القصيدة</button>
+            </div>
+        </section>
+
+        <section id="section-settings" class="tab-content">
+            <div class="premium-card text-center" style="padding: 20px;">
+                <h3 id="quote-title" class="gold-text" style="margin-bottom: 10px;">حكمة اليوم</h3>
+                <p id="quote-text" class="amiri-text" style="color: var(--text-main);">يتم التحميل...</p>
+            </div>
+
+            <div class="settings-list">
+                <div class="setting-item">
+                    <span id="account-name-label">اسم الحساب</span>
+                    <span id="display-username" class="gold-text" style="font-weight: bold;">غير مسجل</span>
+                </div>
+
+                <div onclick="window.location.href='https://www.tiktok.com/@KENO_ZERO'" class="setting-item" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                    <span id="contact-dev">مراسلة المطور</span>
+                    <i class="fa-brands fa-tiktok gold-text"></i>
+                </div>
+                
+                <div class="setting-item">
+                    <span id="lang-label">اللغة (Language)</span>
+                    <select id="lang-select" onchange="changeLanguage()">
+                        <option value="ar">العربية</option>
+                        <option value="en">English</option>
+                    </select>
+                </div>
+
+                <div class="setting-item">
+                    <span id="theme-label">المظهر (Theme)</span>
+                    <select id="theme-select" onchange="changeTheme()">
+                        <option value="dark">داكن ملكي</option>
+                        <option value="light">أبيض</option>
+                    </select>
+                </div>
+                
+                <div class="setting-item">
+                    <span id="version-label">إصدار التطبيق</span>
+                    <span class="gold-text">v1.0.0</span>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <nav class="bottom-nav">
+        <button class="nav-item active" onclick="switchTab('audio', this)">
+            <i class="fa-solid fa-music"></i>
+            <span class="nav-text" id="nav-audio">قصائد</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('poets', this)">
+            <i class="fa-solid fa-feather"></i>
+            <span class="nav-text" id="nav-poets">شعراء</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('publish', this)">
+            <i class="fa-solid fa-pen-nib"></i>
+            <span class="nav-text" id="nav-publish">نشر</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('settings', this)">
+            <i class="fa-solid fa-gear"></i>
+            <span class="nav-text" id="nav-settings">إعدادات</span>
+        </button>
+    </nav>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
