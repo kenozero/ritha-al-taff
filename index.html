@@ -15,7 +15,7 @@
     </header>
 
     <main id="main-content">
-        
+
         <section id="section-audio" class="tab-content active">
             <div style="margin-bottom: 20px; padding: 0 10px;">
                 <div style="position: relative;">
@@ -23,7 +23,7 @@
                     <i class="fa-solid fa-search gold-text" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); font-size: 18px;"></i>
                 </div>
             </div>
-            
+
             <div id="audio-list"></div>
         </section>
 
@@ -42,12 +42,17 @@
 
         <section id="section-publish" class="tab-content">
             <div id="login-container" class="form-container premium-card text-center">
-                <h2 id="login-title" class="gold-text" style="margin-bottom: 15px;">تسجيل الدخول مطلوب</h2>
-                <p id="login-desc" class="amiri-text" style="color: var(--text-muted); margin-bottom: 25px;">لحماية المسابقة، يجب تسجيل الدخول بحساب Google لنشر القصائد أو الإعجاب بها.</p>
-                <button onclick="signInWithGoogle()" class="gold-btn" style="display: flex; align-items: center; justify-content: center; gap: 10px; margin: 0 auto; background: #fff; color: #333; font-family: 'Cairo', sans-serif;">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" width="20" height="20">
-                    <span id="login-btn-text">المتابعة باستخدام Google</span>
-                </button>
+                <h2 id="login-title" class="gold-text" style="margin-bottom: 15px;">تسجيل الدخول / حساب جديد</h2>
+                <p id="login-desc" class="amiri-text" style="color: var(--text-muted); margin-bottom: 25px;">يجب تسجيل الدخول لنشر القصائد أو الإعجاب بها.</p>
+                
+                <input type="email" id="auth-email" placeholder="البريد الإلكتروني (Email)" required dir="ltr" style="text-align: left;">
+                <input type="password" id="auth-pass" placeholder="كلمة المرور (Password)" required dir="ltr" style="text-align: left;">
+                
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <button onclick="loginWithEmail()" class="gold-btn" style="flex: 1;">دخول</button>
+                    <button onclick="registerWithEmail()" class="gold-btn" style="flex: 1; background: var(--ruby-purple); color: #fff;">حساب جديد</button>
+                </div>
+                <button onclick="resetPassword()" style="background: none; border: none; color: var(--gold); cursor: pointer; text-decoration: underline; font-family: 'Cairo', sans-serif;">نسيت كلمة المرور؟</button>
             </div>
 
             <div id="username-container" class="form-container premium-card text-center" style="display: none;">
@@ -87,7 +92,7 @@
                     <span id="contact-dev">مراسلة المطور</span>
                     <i class="fa-brands fa-tiktok gold-text"></i>
                 </div>
-                
+
                 <div class="setting-item">
                     <span id="lang-label">اللغة (Language)</span>
                     <select id="lang-select" onchange="changeLanguage()">
@@ -103,7 +108,7 @@
                         <option value="light">أبيض</option>
                     </select>
                 </div>
-                
+
                 <div class="setting-item">
                     <span id="version-label">إصدار التطبيق</span>
                     <span class="gold-text">v1.0.0</span>
@@ -135,7 +140,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    
+
     <script src="data.js"></script>
     <script src="script.js"></script>
 </body>
