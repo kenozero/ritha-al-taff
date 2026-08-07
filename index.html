@@ -10,8 +10,16 @@
 </head>
 <body>
 
+    <!-- شاشة الترحيب -->
+    <div id="splash-screen" class="splash-screen">
+        <div class="splash-content">
+            <h1 class="gold-text amiri-text" data-i18n="splash_1" style="font-size: 38px; margin-bottom: 15px;">صَلِّ على نبيّكَ الأكرم</h1>
+            <p class="amiri-text" data-i18n="splash_2" style="color: var(--gold); font-size: 24px; text-shadow: var(--purple-glow);">اللهم صلِّ على محمد وآل محمد</p>
+        </div>
+    </div>
+
     <header>
-        <h1 id="app-title">رثاء الطف</h1>
+        <h1 id="app-title" data-i18n="app_title">رثاء الطف</h1>
     </header>
 
     <main id="main-content">
@@ -19,7 +27,7 @@
         <section id="section-audio" class="tab-content active">
             <div style="margin-bottom: 20px; padding: 0 10px;">
                 <div style="position: relative;">
-                    <input type="text" id="search-audio-input" placeholder="ابحث عن قصيدة أو رادود..." onkeyup="searchAudio()" style="padding-right: 40px; margin-bottom: 0;">
+                    <input type="text" id="search-audio-input" data-i18n-placeholder="search_placeholder" placeholder="ابحث عن قصيدة أو رادود..." onkeyup="searchAudio()" style="padding-inline-end: 40px; margin-bottom: 0;">
                     <i class="fa-solid fa-search gold-text" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); font-size: 18px;"></i>
                 </div>
             </div>
@@ -29,88 +37,86 @@
 
         <section id="section-poets" class="tab-content">
             <div id="weekly-contest-board" class="premium-board">
-                <h3 id="contest-title" class="gold-text" style="margin-bottom: 10px;">📜 قوانين المسابقة</h3>
-                <p id="contest-desc" class="amiri-text" style="color: var(--text-main);">
-                    يتم اختيار الفائز أسبوعياً بأعلى نسبة إعجابات.<br>
-                    تُعرض القصيدة الفائزة لمدة 3 أيام.<br>
-                    يجب أن تليق القصائد برثاء أهل البيت (ع).
-                </p>
+                <h3 id="contest-title" class="gold-text" data-i18n="contest_title" style="margin-bottom: 10px;">📜 قوانين المسابقة</h3>
+                <p id="contest-desc" class="amiri-text" data-i18n="contest_desc" style="color: var(--text-main); white-space: pre-wrap;">يتم اختيار الفائز أسبوعياً بأعلى نسبة إعجابات.
+تُعرض القصيدة الفائزة لمدة 3 أيام.
+يجب أن تليق القصائد برثاء أهل البيت (ع).</p>
             </div>
-            <h3 id="poets-title" class="section-heading gold-text" style="text-align: center; margin-bottom: 15px;">القصائد المنشورة</h3>
+            <h3 id="poets-title" class="section-heading gold-text" data-i18n="published_poems" style="text-align: center; margin-bottom: 15px;">القصائد المنشورة</h3>
             <div id="community-poems-list"></div>
         </section>
 
         <section id="section-publish" class="tab-content">
             <div id="login-container" class="form-container premium-card text-center">
-                <h2 id="login-title" class="gold-text" style="margin-bottom: 15px;">تسجيل الدخول / حساب جديد</h2>
-                <p id="login-desc" class="amiri-text" style="color: var(--text-muted); margin-bottom: 25px;">يجب تسجيل الدخول لنشر القصائد أو الإعجاب بها.</p>
+                <h2 id="login-title" class="gold-text" data-i18n="login_title" style="margin-bottom: 15px;">تسجيل الدخول / حساب جديد</h2>
+                <p id="login-desc" class="amiri-text" data-i18n="login_desc" style="color: var(--text-muted); margin-bottom: 25px;">يجب تسجيل الدخول لنشر القصائد أو الإعجاب بها.</p>
                 
-                <input type="email" id="auth-email" placeholder="البريد الإلكتروني (Email)" required dir="ltr" style="text-align: left;">
-                <input type="password" id="auth-pass" placeholder="كلمة المرور (Password)" required dir="ltr" style="text-align: left;">
+                <input type="email" id="auth-email" data-i18n-placeholder="email_placeholder" placeholder="البريد الإلكتروني (Email)" required dir="ltr" style="text-align: start;">
+                <input type="password" id="auth-pass" data-i18n-placeholder="pass_placeholder" placeholder="كلمة المرور (Password)" required dir="ltr" style="text-align: start;">
                 
                 <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                    <button onclick="loginWithEmail()" class="gold-btn" style="flex: 1;">دخول</button>
-                    <button onclick="registerWithEmail()" class="gold-btn" style="flex: 1; background: var(--ruby-purple); color: #fff;">حساب جديد</button>
+                    <button type="button" onclick="loginUser()" class="gold-btn" data-i18n="btn_login" style="flex: 1;">دخول</button>
+                    <button type="button" onclick="registerUser()" class="gold-btn" data-i18n="btn_register" style="flex: 1; background: var(--ruby-purple); color: #fff;">حساب جديد</button>
                 </div>
-                <button onclick="resetPassword()" style="background: none; border: none; color: var(--gold); cursor: pointer; text-decoration: underline; font-family: 'Cairo', sans-serif;">نسيت كلمة المرور؟</button>
+                <button type="button" onclick="resetPassword()" data-i18n="btn_forgot" style="background: none; border: none; color: var(--gold); cursor: pointer; text-decoration: underline;">نسيت كلمة المرور؟</button>
             </div>
 
             <div id="username-container" class="form-container premium-card text-center" style="display: none;">
                 <h2 id="username-title" class="gold-text" style="margin-bottom: 15px;">اختر اسم الحساب</h2>
                 <p id="username-desc" class="amiri-text" style="color: var(--text-muted); margin-bottom: 20px;">هذا الاسم سيكون معرفك الفريد في التطبيق.</p>
                 <input type="text" id="choose-username-input" placeholder="اكتب اسم الحساب" required>
-                <button onclick="saveUsername()" id="save-username-btn" class="gold-btn">حفظ الاسم</button>
+                <button type="button" onclick="saveUsername()" id="save-username-btn" class="gold-btn">حفظ الاسم</button>
             </div>
 
             <div id="publish-container" class="form-container premium-card" style="display: none; padding: 20px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h2 id="publish-main-title" class="gold-text" style="margin: 0;">انشر موهبتك</h2>
-                    <button onclick="signOut()" style="background: none; border: none; color: #ff4c4c; cursor: pointer; font-family: 'Cairo', sans-serif; font-size: 14px;">
-                        <i class="fa-solid fa-right-from-bracket"></i> <span id="logout-text">خروج</span>
+                    <h2 id="publish-main-title" class="gold-text" data-i18n="publish_main_title" style="margin: 0;">انشر موهبتك</h2>
+                    <button type="button" onclick="logoutUser()" style="background: none; border: none; color: #ff4c4c; cursor: pointer; font-size: 14px;">
+                        <i class="fa-solid fa-right-from-bracket"></i> <span id="logout-text" data-i18n="logout_text">خروج</span>
                     </button>
                 </div>
-                <input type="text" id="pub-name" placeholder="اسم الشاعر (يظهر للقصيدة)" required>
-                <input type="text" id="pub-title" placeholder="اسم القصيدة" required>
-                <textarea id="pub-poem" placeholder="اكتب القصيدة كاملة هنا..." rows="8" required></textarea>
-                <button onclick="submitPoem()" id="pub-btn" class="gold-btn">نشر القصيدة</button>
+                <input type="text" id="pub-name" data-i18n-placeholder="pub_name_ph" placeholder="اسم الشاعر (يظهر للقصيدة)" required>
+                <input type="text" id="pub-title" data-i18n-placeholder="pub_title_ph" placeholder="اسم القصيدة" required>
+                <textarea id="pub-poem" data-i18n-placeholder="pub_poem_ph" placeholder="اكتب القصيدة كاملة هنا..." rows="8" required></textarea>
+                <button type="button" onclick="submitPoem()" id="pub-btn" class="gold-btn" data-i18n="pub_btn">نشر القصيدة</button>
             </div>
         </section>
 
         <section id="section-settings" class="tab-content">
             <div class="premium-card text-center" style="padding: 20px;">
-                <h3 id="quote-title" class="gold-text" style="margin-bottom: 10px;">حكمة اليوم</h3>
+                <h3 id="quote-title" data-i18n="quote_title" class="gold-text" style="margin-bottom: 10px;">حكمة اليوم</h3>
                 <p id="quote-text" class="amiri-text" style="color: var(--text-main);">يتم التحميل...</p>
             </div>
 
             <div class="settings-list">
                 <div class="setting-item">
-                    <span id="account-name-label">اسم الحساب</span>
+                    <span id="account-name-label" data-i18n="account_name">اسم الحساب</span>
                     <span id="display-username" class="gold-text" style="font-weight: bold;">غير مسجل</span>
                 </div>
 
-                <div onclick="window.location.href='https://www.tiktok.com/@KENO_ZERO'" class="setting-item" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
-                    <span id="contact-dev">مراسلة المطور</span>
+                <div onclick="window.location.href='https://www.tiktok.com/@KENO_ZERO'" class="setting-item" style="cursor: pointer;">
+                    <span id="contact-dev" data-i18n="contact_dev">مراسلة المطور</span>
                     <i class="fa-brands fa-tiktok gold-text"></i>
                 </div>
 
                 <div class="setting-item">
-                    <span id="lang-label">اللغة (Language)</span>
-                    <select id="lang-select" onchange="changeLanguage()">
+                    <span id="lang-label" data-i18n="language">اللغة</span>
+                    <select id="language-select" onchange="changeLanguage(this.value)">
                         <option value="ar">العربية</option>
                         <option value="en">English</option>
                     </select>
                 </div>
 
                 <div class="setting-item">
-                    <span id="theme-label">المظهر (Theme)</span>
+                    <span id="theme-label" data-i18n="theme">المظهر</span>
                     <select id="theme-select" onchange="changeTheme()">
-                        <option value="dark">داكن ملكي</option>
-                        <option value="light">أبيض</option>
+                        <option value="dark" data-i18n="theme_dark">داكن ملكي</option>
+                        <option value="light" data-i18n="theme_light">أبيض</option>
                     </select>
                 </div>
 
                 <div class="setting-item">
-                    <span id="version-label">إصدار التطبيق</span>
+                    <span id="version-label" data-i18n="version">إصدار التطبيق</span>
                     <span class="gold-text">v1.0.0</span>
                 </div>
             </div>
@@ -121,19 +127,19 @@
     <nav class="bottom-nav">
         <button class="nav-item active" onclick="switchTab('audio', this)">
             <i class="fa-solid fa-music"></i>
-            <span class="nav-text" id="nav-audio">قصائد</span>
+            <span class="nav-text" id="nav-audio" data-i18n="tab_audio">قصائد</span>
         </button>
         <button class="nav-item" onclick="switchTab('poets', this)">
             <i class="fa-solid fa-feather"></i>
-            <span class="nav-text" id="nav-poets">شعراء</span>
+            <span class="nav-text" id="nav-poets" data-i18n="tab_poets">شعراء</span>
         </button>
         <button class="nav-item" onclick="switchTab('publish', this)">
             <i class="fa-solid fa-pen-nib"></i>
-            <span class="nav-text" id="nav-publish">نشر</span>
+            <span class="nav-text" id="nav-publish" data-i18n="tab_publish">نشر</span>
         </button>
         <button class="nav-item" onclick="switchTab('settings', this)">
             <i class="fa-solid fa-gear"></i>
-            <span class="nav-text" id="nav-settings">إعدادات</span>
+            <span class="nav-text" id="nav-settings" data-i18n="tab_settings">إعدادات</span>
         </button>
     </nav>
 
