@@ -1,55 +1,137 @@
 // ==========================================
-// 1. نظام المشغل الصوتي الموحد والتشغيل التسلسلي التلقائي
+// 1. نظام الترجمة وتعدد اللغات (i18n)
 // ==========================================
-let globalAudio = new Audio();
-let currentTrackId = null;
+const translations = {
+    ar: {
+        app_title: "رثاء الطف",
+        tab_audio: "قصائد",
+        tab_poets: "شعراء",
+        tab_publish: "نشر",
+        tab_settings: "إعدادات",
+        quote_title: "حكمة اليوم",
+        account_name: "اسم الحساب",
+        contact_dev: "مراسلة المطور",
+        language: "اللغة",
+        theme: "المظهر",
+        version: "إصدار التطبيق",
+        published_poems: "القصائد المنشورة",
+        read_full: "عرض القصيدة كاملة ✨",
+        by_poet: "الشاعر:",
+        by_user: "نُشرت بواسطة:",
+        pending_title: "القصائد بانتظار الموافقة",
+        splash_1: "صَلِّ على نبيّكَ الأكرم",
+        splash_2: "اللهم صلِّ على محمد وآل محمد",
+        contest_title: "📜 قوانين المسابقة",
+        contest_desc: "يتم اختيار الفائز أسبوعياً بأعلى نسبة إعجابات.\nتُعرض القصيدة الفائزة لمدة 3 أيام.\nيجب أن تليق القصائد برثاء أهل البيت (ع).",
+        login_title: "تسجيل الدخول / حساب جديد",
+        login_desc: "يجب تسجيل الدخول لنشر القصائد أو الإعجاب بها.",
+        btn_login: "دخول",
+        btn_register: "حساب جديد",
+        btn_forgot: "نسيت كلمة المرور؟",
+        publish_main_title: "انشر موهبتك",
+        logout_text: "خروج",
+        pub_btn: "نشر القصيدة",
+        search_placeholder: "ابحث عن قصيدة أو رادود...",
+        email_placeholder: "البريد الإلكتروني (Email)",
+        pass_placeholder: "كلمة المرور (Password)",
+        pub_name_ph: "اسم الشاعر (يظهر للقصيدة)",
+        pub_title_ph: "اسم القصيدة",
+        pub_poem_ph: "اكتب القصيدة كاملة هنا...",
+        theme_dark: "داكن ملكي",
+        theme_light: "أبيض"
+    },
+    en: {
+        app_title: "Ritha Al-Taff",
+        tab_audio: "Audio",
+        tab_poets: "Poets",
+        tab_publish: "Publish",
+        tab_settings: "Settings",
+        quote_title: "Quote of the Day",
+        account_name: "Account Name",
+        contact_dev: "Contact Developer",
+        language: "Language",
+        theme: "Theme",
+        version: "App Version",
+        published_poems: "Published Poems",
+        read_full: "Read Full Poem ✨",
+        by_poet: "Poet:",
+        by_user: "Published by:",
+        pending_title: "Poems Pending Approval",
+        splash_1: "Blessings upon the Noble Prophet",
+        splash_2: "O Allah, bless Muhammad and his Family",
+        contest_title: "📜 Contest Rules",
+        contest_desc: "Winner is chosen weekly based on likes.\nWinning poem is featured for 3 days.\nPoems must be respectful to Ahlulbayt (a.s).",
+        login_title: "Login / Register",
+        login_desc: "You must log in to publish or like poems.",
+        btn_login: "Login",
+        btn_register: "Register",
+        btn_forgot: "Forgot Password?",
+        publish_main_title: "Share Your Talent",
+        logout_text: "Logout",
+        pub_btn: "Publish Poem",
+        search_placeholder: "Search for a poem or reciter...",
+        email_placeholder: "Email Address",
+        pass_placeholder: "Password",
+        pub_name_ph: "Poet Name",
+        pub_title_ph: "Poem Title",
+        pub_poem_ph: "Write full poem here...",
+        theme_dark: "Royal Dark",
+        theme_light: "Light"
+    }
+};
 
-// تحديث الوقت والشريط للقصيدة الشغالة فقط
+let currentLang = localStorage.getItem('app_lang') || 'ar';
+
+function changeLanguage(lang) {
+    currentLang = lang;
+    localStorage.setItem('app_lang', lang);
+    
+    document.documentElement.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+    document.documentElement.lang = lang;
+
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[lang] && translations[lang][key]) {
+            el.innerText = translations[lang][key];
+        }
+    });
+
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (translations[lang] && translations[lang][key]) {
+            el.placeholder = translations[lang][key];
+        }
+    });
+
+    loadApprovedPoems(); 
+}
+
+// ==========================================
+// 2. نظام المشغل الصوتي والبحث
+// ==========================================
+const globalAudio = new Audio();
+let currentTrackId = null;
+let isSwitchingTrack = false; 
+let currentSeekBar = null;
+let currentTimeDisplay = null;
+
 globalAudio.addEventListener('timeupdate', function() {
-    if (!currentTrackId) return;
-    const seekBar = document.getElementById(`seek-${currentTrackId}`);
-    const timeDisplay = document.getElementById(`time-${currentTrackId}`);
+    if (!currentTrackId || !currentSeekBar) return;
+    
     if (globalAudio.duration) {
         const percent = (globalAudio.currentTime / globalAudio.duration) * 100;
-        seekBar.value = percent;
-        seekBar.style.setProperty('--progress', percent + '%');
-        timeDisplay.innerText = `${formatTime(globalAudio.currentTime)} / ${formatTime(globalAudio.duration)}`;
+        currentSeekBar.value = percent;
+        currentSeekBar.style.setProperty('--progress', percent + '%'); 
+        
+        if(currentTimeDisplay) {
+            currentTimeDisplay.innerText = `${formatTime(globalAudio.currentTime)} / ${formatTime(globalAudio.duration)}`;
+        }
     }
 });
 
-// جلب وعرض الوقت الكلي فقط بعد الضغط على تشغيل
-globalAudio.addEventListener('loadedmetadata', function() {
-    if (!currentTrackId) return;
-    const timeDisplay = document.getElementById(`time-${currentTrackId}`);
-    timeDisplay.innerText = `0:00 / ${formatTime(globalAudio.duration)}`;
-});
-
-// الحدث عند انتهاء القصيدة: تصفير الحالية وتشغيل القصيدة التي تليها تلقائياً
 globalAudio.addEventListener('ended', function() {
     if (!currentTrackId) return;
-    
-    // 1. إيقاف وتصفير واجهة القصيدة الحالية
-    document.getElementById(`playBtn-${currentTrackId}`).innerHTML = '<i class="fa-solid fa-play"></i>';
-    const seekBar = document.getElementById(`seek-${currentTrackId}`);
-    if (seekBar) { seekBar.value = 0; seekBar.style.setProperty('--progress', '0%'); }
-    
-    // 2. جلب القصيدة التالية من مصفوفة البيانات audioData
-    const currentIndex = audioData.findIndex(track => track.id == currentTrackId);
-    
-    if (currentIndex !== -1 && currentIndex < audioData.length - 1) {
-        const nextTrack = audioData[currentIndex + 1];
-        
-        // 3. تشغيل القصيدة التالية تلقائياً
-        togglePlay(nextTrack.id, nextTrack.file);
-        
-        // 4. تمرير الشاشة تلقائياً للقصيدة الجديدة
-        const nextCard = document.getElementById(`card-${nextTrack.id}`);
-        if (nextCard) {
-            nextCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-    } else {
-        currentTrackId = null; // الوصول لنهاية القائمة
-    }
+    playNext(currentTrackId);
 });
 
 function loadAudioList() {
@@ -91,12 +173,11 @@ function loadAudioList() {
                         </div>
                         <div class="progress-container">
                             <input type="range" id="seek-${trackId}" value="0" max="100" onchange="seekAudio(this.value)" oninput="seekAudio(this.value)">
-                            <div class="time-display" id="time-${trackId}">--:-- / --:--</div>
+                            <div class="time-display" id="time-${trackId}">0:00 / 0:00</div>
                         </div>
                     </div>
                 </div>
-            </div>
-            `;
+            </div>`;
         });
         audioContainer.innerHTML = htmlContent;
     } else {
@@ -105,15 +186,13 @@ function loadAudioList() {
 }
 
 function searchAudio() {
-    const input = document.getElementById('search-audio-input').value.toLowerCase();
+    const query = (document.getElementById('search-audio-input')?.value || '').toLowerCase().trim();
     const cards = document.querySelectorAll('.audio-track-card');
-
     cards.forEach(card => {
         const title = card.getAttribute('data-title') || '';
         const poet = card.getAttribute('data-poet') || '';
         const reciter = card.getAttribute('data-reciter') || '';
-
-        if (title.includes(input) || poet.includes(input) || reciter.includes(input)) {
+        if (title.includes(query) || poet.includes(query) || reciter.includes(query)) {
             card.style.display = 'block';
         } else {
             card.style.display = 'none';
@@ -122,41 +201,71 @@ function searchAudio() {
 }
 
 function togglePlay(id, fileSrc) {
+    if (isSwitchingTrack) return; 
+
     if (currentTrackId === id) {
+        const playBtn = document.getElementById(`playBtn-${id}`);
         if (globalAudio.paused) {
             globalAudio.play();
-            document.getElementById(`playBtn-${id}`).innerHTML = '<i class="fa-solid fa-pause"></i>';
+            if(playBtn) playBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
         } else {
             globalAudio.pause();
-            document.getElementById(`playBtn-${id}`).innerHTML = '<i class="fa-solid fa-play"></i>';
+            if(playBtn) playBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
         }
-    } else {
-        if (currentTrackId) {
-            const oldBtn = document.getElementById(`playBtn-${currentTrackId}`);
-            if (oldBtn) oldBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
-            const oldSeek = document.getElementById(`seek-${currentTrackId}`);
-            if (oldSeek) { oldSeek.value = 0; oldSeek.style.setProperty('--progress', '0%'); }
-            const oldTime = document.getElementById(`time-${currentTrackId}`);
-            if (oldTime) oldTime.innerText = '--:-- / --:--';
-        }
-        
-        currentTrackId = id;
-        globalAudio.src = fileSrc;
-        globalAudio.play();
-        const newBtn = document.getElementById(`playBtn-${id}`);
-        if (newBtn) newBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+        return;
     }
+
+    isSwitchingTrack = true;
+
+    if (currentTrackId) {
+        globalAudio.pause();
+        const oldBtn = document.getElementById(`playBtn-${currentTrackId}`);
+        if(oldBtn) oldBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+        if(currentSeekBar) { currentSeekBar.value = 0; currentSeekBar.style.setProperty('--progress', '0%'); }
+        if(currentTimeDisplay) currentTimeDisplay.innerText = '0:00 / 0:00';
+    }
+
+    const newBtn = document.getElementById(`playBtn-${id}`);
+    if (newBtn) newBtn.innerHTML = '<i class="fa-solid fa-hourglass-half fa-spin"></i>';
+
+    currentTrackId = id;
+    globalAudio.src = fileSrc;
+    globalAudio.load();
+    
+    currentSeekBar = document.getElementById(`seek-${id}`);
+    currentTimeDisplay = document.getElementById(`time-${id}`);
+
+    globalAudio.play().then(() => {
+        if (newBtn) newBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+        isSwitchingTrack = false; 
+        if (currentTimeDisplay && globalAudio.duration) {
+            currentTimeDisplay.innerText = `0:00 / ${formatTime(globalAudio.duration)}`;
+        }
+    }).catch(err => {
+        console.error("Audio playback failed:", err);
+        if (newBtn) newBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+        isSwitchingTrack = false;
+    });
 }
 
 function seekAudio(percent) {
-    if (globalAudio.duration) {
+    if (globalAudio.duration && currentTrackId) {
         globalAudio.currentTime = (percent / 100) * globalAudio.duration;
     }
 }
 
 function skipTime(seconds) {
-    if (globalAudio.duration) {
+    if (globalAudio.duration && currentTrackId) {
         globalAudio.currentTime += seconds;
+    }
+}
+
+function playNext(currentId) {
+    if (typeof audioData === 'undefined') return;
+    const currentIndex = audioData.findIndex(t => t.id == currentId);
+    if (currentIndex !== -1 && currentIndex < audioData.length - 1) {
+        const nextTrack = audioData[currentIndex + 1];
+        togglePlay(nextTrack.id, nextTrack.file);
     }
 }
 
@@ -168,241 +277,580 @@ function formatTime(seconds) {
 }
 
 // ==========================================
-// 3. حكمة اليوم التلقائية (100 حكمة)
+// 3. الحكم والمظهر
 // ==========================================
 const dailyQuotes = [
     "من راقب الناس مات هماً، ومن راقب الحسين عاش حراً", "الحسين ليس شخصاً، بل هو مشروع إنساني متكامل",
     "إن كان دين محمد لم يستقم إلا بقتلي، يا سيوف خذيني", "هيهات منا الذلة", "كل يوم عاشوراء وكل أرض كربلاء",
-    "البكاء على الحسين رسالة ثورة", "تعلمت من الحسين كيف أكون مظلوماً فأنتصر", "العباس قمر العشيرة ورمز الوفاء",
-    "زينب جبل الصبر في مواجهة الطغيان", "إنما خرجت لطلب الإصلاح في أمة جدي", "من هوان الدنيا على الله أن يهدى رأس يحيى لِبغيّ",
-    "لا أرى الموت إلا سعادة والحياة مع الظالمين إلا برما", "يا ليتنا كنا معكم فنفوز فوزاً عظيماً", "كذب الموت فالحسين مخلد",
-    "العباس كفيل الخدر وحامي العقيلة", "يا كربلاء خذيني لترابك", "الدم ينتصر على السيف دائماً", "الحسين سفينة النجاة",
-    "مصباح الهدى وسفينة النجاة هو الحسين", "عش عزيزاً أو مت وأنت كريم", "لا يوم كيومك يا أبا عبد الله",
-    "زينب بصبرها أكملت رسالة عاشوراء", "السلام على الشيب الخضيب", "السلام على الخد التريب", "يا ساقي عطاشى كربلاء",
-    "أبد والله يا زهراء ما ننسى حسيناه", "الحسين دمعة جارية في كل عين مؤمن", "قتيل العبرات وأسير الكربات",
-    "الشهادة شرف الأحرار", "طف كربلاء مدرسة الأجيال", "أعطني يقيناً كيقين العباس", "الحسين علمنا أن الموت في عز حياة",
-    "صوت زينب هدم عروش الطغاة", "كربلاء ليست جغرافيا بل عقيدة", "دم الحسين شجرة تثمر الأحرار", "الولاء للحسين ولاء للحق",
-    "طريق الحسين هو طريق الجنة", "الحر الرياحي نال شرف التوبة الحسينية", "القاسم عريس كربلاء", "علي الأكبر شبيه المصطفى",
-    "عبد الله الرضيع أصغر جندي في كربلاء", "سهم المثلث مزق قلب الإنسانية", "رقية يتيمة الحسين وصرخة الشام",
-    "يا حسين يا سيد الشهداء", "أنا قتيل العبرة لا يذكرني مؤمن إلا بكى", "نحن عشاق الشهادة", "شيعتي مهما شربتم عذب ماء فاذكروني",
-    "أو سمعتم بغريب أو شهيد فاندبوني", "الوفاء خُلق العباس بن علي", "الأخوة تتجسد في أبي الفضل", "الحسين ثورة لا تنطفئ",
-    "نور الحسين يضيء دروب الظلام", "من أحبنا أهل البيت فليستعد للبلاء", "اللهم ارزقنا شفاعة الحسين يوم الورود",
-    "ثورة الحسين ضد الظلم مستمرة", "زينب كعبة الأحزان", "لا عذب الله أمي إنها شربت حب الوصي", "تربة كربلاء شفاء من كل داء",
-    "عاشوراء صرخة الحق في وجه الباطل", "الحسين قران ناطق", "من كربلاء نستمد العزم", "صبر الحسين أعجز الملائكة",
-    "الحسين ضحى بالغالي والنفيس لأجل الدين", "السلام على الرأس المرفوع فوق القنا", "السلام على الشفاه الذابلات",
-    "السلام على الأجساد العاريات", "يا لثارات الحسين", "بدمائكم انتصر الإسلام", "يا ليتني كنت درعاً للحسين",
-    "الوفاء للعباس دين في أعناقنا", "الأيتام يبكونك يا حسين", "زينب راية لا تنكسر", "الحسين رمز الفداء", "الأحرار يبكون الحسين",
-    "مأجورين يا شيعة علي", "كربلاء قبلة العشاق", "يا غريب طوس يا أنيس النفوس يابن الحسين", "لن تمحو ذكرنا",
-    "زينب صرخة في وجه يزيد", "الحسين حي في قلوبنا", "الدمعة على الحسين تغسل الذنوب", "يا موضع سر الله", "يا رحمة الله الواسعة",
-    "الحسين قبلة الأحرار", "من سل سيف البغي قُتل به", "الحسين حجة الله على خلقه", "الإيمان يتجلى في كربلاء", "السلام على الحسين وعلى علي بن الحسين",
-    "وعلى أولاد الحسين وعلى أصحاب الحسين", "يا كفيل الزينبات", "العباس عين الحسين الساهرة", "يا باب الحوائج يا أبا الفضل",
-    "الحسين هو القرآن الممزق", "اللهم ثبت لي قدم صدق عندك مع الحسين", "يا وارث آدم صفوة الله", "العباس نهر الوفاء الذي لا ينضب",
-    "عاشوراء مدرسة القيم", "الحسين علمنا أن الكرامة أغلى من الحياة", "صبر العيلة بعد الحسين معجزة", "زينب بطلة كربلاء الشامخة"
+    "البكاء على الحسين رسالة ثورة", "تعلمت من الحسين كيف أكون مظلوماً فأنتصر", "العباس قمر العشيرة ورمز الوفاء"
 ];
 
 function setDailyQuote() {
+    const startDate = new Date('2024-01-01T00:00:00');
     const today = new Date();
-    const index = (today.getFullYear() * 365 + today.getMonth() * 30 + today.getDate()) % dailyQuotes.length;
+    const diffDays = Math.floor(Math.abs(today - startDate) / (1000 * 60 * 60 * 24));
     const qElem = document.getElementById('quote-text');
-    if(qElem) qElem.innerText = dailyQuotes[index];
+    if(qElem) qElem.innerText = dailyQuotes[diffDays % dailyQuotes.length];
 }
 
 function changeTheme() {
-    const theme = document.getElementById('theme-select').value;
-    document.documentElement.setAttribute('data-theme', theme);
-}
-
-const translations = {
-    ar: {
-        appTitle: "رثاء الطف", navAudio: "قصائد", navPoets: "شعراء", navPublish: "نشر", navSettings: "إعدادات",
-        contestTitle: "📜 قوانين المسابقة", poetsTitle: "القصائد المنشورة", loginTitle: "تسجيل الدخول / حساب جديد",
-        loginDesc: "يجب تسجيل الدخول لنشر القصائد أو الإعجاب بها.",
-        usernameTitle: "اختر اسم الحساب",
-        saveUserBtn: "حفظ الاسم", publishMainTitle: "انشر موهبتك", logoutText: "خروج", pubBtn: "نشر القصيدة",
-        quoteTitle: "حكمة اليوم", accountLabel: "اسم الحساب", contactDev: "مراسلة المطور",
-        langLabel: "اللغة (Language)", themeLabel: "المظهر (Theme)", versionLabel: "إصدار التطبيق"
-    },
-    en: {
-        appTitle: "Ritha Al-Taff", navAudio: "Audio", navPoets: "Poets", navPublish: "Publish", navSettings: "Settings",
-        contestTitle: "📜 Contest Rules", poetsTitle: "Published Poems", loginTitle: "Login / Register",
-        loginDesc: "You must login to publish or like poems.",
-        usernameTitle: "Choose Username",
-        saveUserBtn: "Save Name", publishMainTitle: "Publish Your Talent", logoutText: "Logout", pubBtn: "Publish Poem",
-        quoteTitle: "Quote of the Day", accountLabel: "Account Name", contactDev: "Contact Developer",
-        langLabel: "Language", themeLabel: "Theme", versionLabel: "App Version"
+    const themeSelect = document.getElementById('theme-select');
+    if(themeSelect) {
+        document.documentElement.setAttribute('data-theme', themeSelect.value);
     }
-};
-
-function changeLanguage() {
-    const lang = document.getElementById('lang-select').value;
-    const t = translations[lang];
-
-    document.getElementById('app-title').innerText = t.appTitle;
-    document.getElementById('nav-audio').innerText = t.navAudio;
-    document.getElementById('nav-poets').innerText = t.navPoets;
-    document.getElementById('nav-publish').innerText = t.navPublish;
-    document.getElementById('nav-settings').innerText = t.navSettings;
-    document.getElementById('contest-title').innerText = t.contestTitle;
-    document.getElementById('poets-title').innerText = t.poetsTitle;
-    document.getElementById('login-title').innerText = t.loginTitle;
-    document.getElementById('login-desc').innerText = t.loginDesc;
-    document.getElementById('username-title').innerText = t.usernameTitle;
-    document.getElementById('save-username-btn').innerText = t.saveUserBtn;
-    document.getElementById('publish-main-title').innerText = t.publishMainTitle;
-    document.getElementById('logout-text').innerText = t.logoutText;
-    document.getElementById('pub-btn').innerText = t.pubBtn;
-    document.getElementById('quote-title').innerText = t.quoteTitle;
-    document.getElementById('account-name-label').innerText = t.accountLabel;
-    document.getElementById('contact-dev').innerText = t.contactDev;
-    document.getElementById('lang-label').innerText = t.langLabel;
-    document.getElementById('theme-label').innerText = t.themeLabel;
-    document.getElementById('version-label').innerText = t.versionLabel;
-
-    document.documentElement.setAttribute('dir', lang === 'en' ? 'ltr' : 'rtl');
 }
 
 // ==========================================
-// 6. إعدادات فايربيس (الحقيقية الخاصة بمشروع ritha-al-taff-2)
+// 4. إدارة حسابات المستخدمين و Firebase Auth
 // ==========================================
+var isOfflineMode = false;
 var isFirebaseReady = false;
-
-try {
-    var firebaseConfig = {
-        apiKey: "AIzaSyC76h7g3862hYd0MbeK6gZ-1v4-XmQ8m5k", 
-        authDomain: "ritha-al-taff-2.firebaseapp.com",
-        databaseURL: "https://ritha-al-taff-2-default-rtdb.firebaseio.com", 
-        projectId: "ritha-al-taff-2",
-        storageBucket: "ritha-al-taff-2.appspot.com",
-        messagingSenderId: "542385109432",
-        appId: "1:542385109432:web:ab2134cd56ef7890"
-    };
-
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
-    isFirebaseReady = true;
-} catch (error) {
-    console.error("Firebase Connection Failed:", error);
-}
-
-// ==========================================
-// 7. أنظمة الحسابات وتسجيل الدخول بالايميل
-// ==========================================
 var currentUser = null; 
 var currentUsername = null; 
+window.allApprovedPoems = [];
 
-if (isFirebaseReady) {
-    try {
-        firebase.auth().onAuthStateChanged(function(user) {
-            var loginContainer = document.getElementById('login-container');
-            var usernameContainer = document.getElementById('username-container');
-            var publishContainer = document.getElementById('publish-container');
-            var displayUsername = document.getElementById('display-username');
-
-            if (user) {
-                currentUser = user;
-                firebase.database().ref('users/' + user.uid + '/username').on('value', function(snapshot) {
-                    if (snapshot.exists()) {
-                        currentUsername = snapshot.val();
-                        if(displayUsername) displayUsername.innerText = currentUsername; 
-                        if(loginContainer) loginContainer.style.display = 'none';
-                        if(usernameContainer) usernameContainer.style.display = 'none';
-                        if(publishContainer) publishContainer.style.display = 'block';
-                    } else {
-                        currentUsername = null;
-                        if(displayUsername) displayUsername.innerText = 'بانتظار اختيار الاسم';
-                        if(loginContainer) loginContainer.style.display = 'none';
-                        if(publishContainer) publishContainer.style.display = 'none';
-                        if(usernameContainer) usernameContainer.style.display = 'block'; 
-                    }
-                });
-            } else {
-                currentUser = null;
-                currentUsername = null;
-                if(displayUsername) displayUsername.innerText = 'غير مسجل';
-                if(loginContainer) loginContainer.style.display = 'block';
-                if(usernameContainer) usernameContainer.style.display = 'none';
-                if(publishContainer) publishContainer.style.display = 'none';
-            }
-            loadApprovedPoems();
-        });
-    } catch(e) {}
+function checkInternetConnection() {
+    if (!navigator.onLine) {
+        isOfflineMode = true;
+    } else {
+        isOfflineMode = false;
+        initFirebaseApp(); 
+    }
 }
 
-function registerWithEmail() {
-    if (!isFirebaseReady) return;
-    var email = document.getElementById('auth-email').value;
-    var pass = document.getElementById('auth-pass').value;
-    if (!email || !pass) return alert("يرجى كتابة البريد الإلكتروني وكلمة المرور أولاً!");
-    
-    firebase.auth().createUserWithEmailAndPassword(email, pass)
-    .then(function() {
-        alert("تم إنشاء الحساب بنجاح! الآن اختر اسماً لحسابك.");
-    })
-    .catch(function(error) {
-        alert("حدث خطأ أثناء الإنشاء: " + error.message);
+function initFirebaseApp() {
+    if (isOfflineMode) return; 
+
+    try {
+        var firebaseConfig = {
+            apiKey: "AIzaSyB5RE7ZW1xWH_dQPoO0xigEKWj17QUQJAE",
+            authDomain: "ritha-taff-new-a1682.firebaseapp.com",
+            databaseURL: "https://ritha-taff-new-a1682-default-rtdb.firebaseio.com",
+            projectId: "ritha-taff-new-a1682",
+            storageBucket: "ritha-taff-new-a1682.firebasestorage.app",
+            messagingSenderId: "132600875170",
+            appId: "1:132600875170:web:05a584d2e2b9d4a5322ffb"
+        };
+
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        isFirebaseReady = true;
+        setupFirebaseAuth();
+    } catch (error) {
+        console.error("Firebase Auth Fail:", error);
+    }
+}
+
+function setupFirebaseAuth() {
+    firebase.auth().onAuthStateChanged(function(user) {
+        var displayUsername = document.getElementById('display-username');
+        var loginCard = document.getElementById('login-container');
+        var usernameCard = document.getElementById('username-container');
+        var publishCard = document.getElementById('publish-container');
+
+        if (user) {
+            currentUser = user;
+            firebase.database().ref('users/' + user.uid + '/username').once('value').then(function(snapshot) {
+                if (snapshot.exists()) {
+                    currentUsername = snapshot.val();
+                    if(displayUsername) displayUsername.innerText = currentUsername;
+                    if (loginCard) loginCard.style.display = 'none';
+                    if (usernameCard) usernameCard.style.display = 'none';
+                    if (publishCard) publishCard.style.display = 'block';
+                } else {
+                    currentUsername = user.email ? user.email.split('@')[0] : "مستخدم";
+                    if (loginCard) loginCard.style.display = 'none';
+                    if (usernameCard) usernameCard.style.display = 'block';
+                    if (publishCard) publishCard.style.display = 'none';
+                }
+            }).catch(function() {
+                currentUsername = user.email ? user.email.split('@')[0] : "مستخدم";
+                if(displayUsername) displayUsername.innerText = currentUsername;
+                if (loginCard) loginCard.style.display = 'none';
+                if (publishCard) publishCard.style.display = 'block';
+            });
+
+        } else {
+            currentUser = null;
+            currentUsername = null;
+            if(displayUsername) displayUsername.innerText = "غير مسجل";
+
+            if (loginCard) loginCard.style.display = 'block';
+            if (usernameCard) usernameCard.style.display = 'none';
+            if (publishCard) publishCard.style.display = 'none';
+        }
+        loadApprovedPoems();
+        loadPendingPoems(); 
     });
 }
 
-function loginWithEmail() {
-    if (!isFirebaseReady) return;
-    var email = document.getElementById('auth-email').value;
-    var pass = document.getElementById('auth-pass').value;
-    if (!email || !pass) return alert("يرجى كتابة البريد الإلكتروني وكلمة المرور!");
+function loginUser() {
+    if (isOfflineMode || !isFirebaseReady) return alert("لا يوجد اتصال بالإنترنت.");
+    
+    var emailInput = document.getElementById('auth-email');
+    var passInput = document.getElementById('auth-pass');
+    
+    if (!emailInput || !passInput || !emailInput.value.trim() || !passInput.value) {
+        alert("يرجى إدخال البريد الإلكتروني وكلمة المرور بشكل صحيح!");
+        return;
+    }
 
-    firebase.auth().signInWithEmailAndPassword(email, pass)
-    .then(function() {
-        alert("تم تسجيل الدخول بنجاح.");
-    })
-    .catch(function(error) {
-        alert("خطأ في تسجيل الدخول: " + error.message);
+    firebase.auth().signInWithEmailAndPassword(emailInput.value.trim(), passInput.value)
+        .then(function() {
+            alert("تم تسجيل الدخول بنجاح!");
+        })
+        .catch(function(error) {
+            alert("خطأ في تسجيل الدخول: " + error.message);
+        });
+}
+
+function registerUser() {
+    if (isOfflineMode || !isFirebaseReady) return alert("لا يوجد اتصال بالإنترنت.");
+
+    var emailInput = document.getElementById('auth-email');
+    var passInput = document.getElementById('auth-pass');
+
+    if (!emailInput || !passInput || !emailInput.value.trim() || !passInput.value) {
+        alert("يرجى إدخال البريد الإلكتروني وكلمة المرور لإنشاء الحساب!");
+        return;
+    }
+
+    firebase.auth().createUserWithEmailAndPassword(emailInput.value.trim(), passInput.value)
+        .then(function(result) {
+            var uid = result.user.uid;
+            var defaultName = emailInput.value.split('@')[0];
+            firebase.database().ref('users/' + uid).set({
+                username: defaultName,
+                email: emailInput.value
+            }).then(function() {
+                alert("تم إنشاء الحساب بنجاح!");
+            });
+        })
+        .catch(function(error) {
+            alert("فشل إنشاء الحساب: " + error.message);
+        });
+}
+
+function saveUsername() {
+    if (!currentUser || !isFirebaseReady) return alert("يجب تسجيل الدخول أولاً!");
+    var usernameInput = document.getElementById('choose-username-input');
+    var val = usernameInput ? usernameInput.value.trim() : "";
+
+    if (!val) return alert("يرجى كتابة اسم الحساب!");
+
+    firebase.database().ref('users/' + currentUser.uid).update({
+        username: val
+    }).then(function() {
+        currentUsername = val;
+        var displayUsername = document.getElementById('display-username');
+        if (displayUsername) displayUsername.innerText = currentUsername;
+
+        document.getElementById('username-container').style.display = 'none';
+        document.getElementById('publish-container').style.display = 'block';
+        alert("تم حفظ الاسم بنجاح!");
+    }).catch(function(err) {
+        alert("خطأ أثناء حفظ الاسم: " + err.message);
     });
 }
 
 function resetPassword() {
-    if (!isFirebaseReady) return;
-    var email = document.getElementById('auth-email').value;
-    if (!email) return alert("الرجاء كتابة بريدك الإلكتروني في الخانة أولاً، ثم اضغط على نسيت كلمة المرور!");
+    if (isOfflineMode || !isFirebaseReady) return alert("لا يوجد اتصال بالإنترنت.");
 
-    firebase.auth().sendPasswordResetEmail(email)
-    .then(function() {
-        alert("تم إرسال رابط استعادة كلمة المرور إلى بريدك الإلكتروني. تفقد صندوق الوارد.");
-    })
-    .catch(function(error) {
-        alert("خطأ: " + error.message);
+    var emailInput = document.getElementById('auth-email');
+
+    if (!emailInput || !emailInput.value.trim()) {
+        alert("اكتب البريد الإلكتروني أولاً في الحقل أعلاه ليرسل لك التطبيق رابط تعيين كلمة المرور!");
+        return;
+    }
+
+    firebase.auth().sendPasswordResetEmail(emailInput.value.trim())
+        .then(function() {
+            alert("تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني بنجاح!");
+        })
+        .catch(function(error) {
+            alert("فشل إرسال الرابط: " + error.message);
+        });
+}
+
+function logoutUser() {
+    if (!isFirebaseReady) return;
+    firebase.auth().signOut().then(function() {
+        alert("تم تسجيل الخروج.");
     });
 }
 
-function signOut() { 
-    if (isFirebaseReady) {
-        firebase.auth().signOut(); 
+// ==========================================
+// 5. عرض القصائد والمسابقة (تصغير، توسيط، كتابة بيضاء وكبيرة)
+// ==========================================
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+// دالة تحديد الفائز وعرضه بشكل مصغر، في المنتصف، وبكتابة بيضاء كبيرة
+function updateContestBoard(poemsArray) {
+    var contestBoard = document.getElementById('weekly-contest-board');
+    if (!contestBoard) return;
+
+    // تصغير قائمة فائز الأسبوع وتوسيطها عبر الـ CSS المضمّن
+    contestBoard.style.maxWidth = "88%";
+    contestBoard.style.margin = "10px auto 15px auto";
+    contestBoard.style.padding = "12px 15px";
+
+    var today = new Date().getDay(); 
+    // الأحد (0)، الإثنين (1)، الثلاثاء (2) -> عرض الفائز
+    var isWinnerDays = (today >= 0 && today <= 2);
+
+    if (!isWinnerDays) {
+        contestBoard.innerHTML = `
+            <div style="text-align: center;">
+                <h3 class="gold-text" style="margin-bottom: 8px; font-size: 17px;"><i class="fa-solid fa-scroll"></i> المنافسة الأسبوعية مستمرة!</h3>
+                <p style="color: #ffffff; font-size: 16px; line-height: 1.6; font-weight: bold; margin: 0 auto; max-width: 95%;">
+                    مرحلة جمع الإعجابات للقصائد مفتوحة الآن (من الأربعاء إلى السبت).<br>
+                    سيتم إعلان الفائز تلقائياً بأعلى نسبة إعجابات أيام: الأحد، الإثنين، والثلاثاء.<br>
+                    <span style="color: var(--gold); display: block; margin-top: 6px; font-size: 13px;">(ملاحظة: النشر متاح طوال أيام الأسبوع)</span>
+                </p>
+            </div>
+        `;
+        return;
+    }
+
+    if (!poemsArray || poemsArray.length === 0) {
+        contestBoard.innerHTML = '<h3 class="gold-text" style="text-align: center; font-size: 16px;">لا يوجد قصائد فائزة حتى الآن</h3>';
+        return;
+    }
+    
+    var winner = poemsArray.reduce(function(prev, current) {
+        return ((current.likes || 0) > (prev.likes || 0)) ? current : prev;
+    }, poemsArray[0]);
+
+    if (!winner || (winner.likes || 0) === 0) {
+        contestBoard.innerHTML = '<h3 class="gold-text" style="text-align: center; font-size: 16px;">لم تحصل أي قصيدة على إعجابات بعد</h3>';
+        return;
+    }
+
+    var userWinsCount = poemsArray.filter(p => p.uploaderUsername === winner.uploaderUsername && (p.likes || 0) > 0).length;
+    var winBadgeHTML = '';
+    
+    if (userWinsCount > 1) {
+        winBadgeHTML = `
+            <div style="text-align: center; margin-top: 8px;">
+                <span style="background: var(--ruby-purple); color: #fff; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; border: 1px solid var(--gold);">
+                    <i class="fa-solid fa-medal"></i> هذا الشخص فاز بـ ${userWinsCount} مسابقات
+                </span>
+            </div>
+        `;
+    }
+
+    const t = translations[currentLang];
+    var firstLine = (winner.text || '').trim().split('\n')[0] || '';
+    var isLikedByMe = currentUser && winner.likedBy && winner.likedBy[currentUser.uid] ? true : false;
+    var heartIcon = isLikedByMe ? '❤️' : '🤍';
+
+    contestBoard.innerHTML = `
+        <div style="text-align: center; border-bottom: 1px solid var(--gold); padding-bottom: 6px; margin-bottom: 8px;">
+            <h3 class="gold-text" style="margin:0; font-size: 17px;"><i class="fa-solid fa-trophy"></i> 🏆 فائز الأسبوع</h3>
+        </div>
+        
+        <div class="premium-card poem-preview-card" style="border: 1px solid var(--gold); margin-bottom: 0; text-align: center;" onclick="openPoemModal('${winner.id}')">
+            <div class="poem-card-header" style="text-align: center;">
+                <h3 class="gold-text" style="font-size: 18px;">${winner.title}</h3>
+                <p class="poem-poet-name" style="color: #ffffff; font-size: 14px;"><i class="fa-solid fa-feather-pointed"></i> ${t.by_poet} ${winner.poet}</p>
+                <p class="poem-uploader-name" style="color: #cccccc; font-size: 12px;"><i class="fa-solid fa-user"></i> ${t.by_user} @${winner.uploaderUsername || 'مجهول'}</p>
+            </div>
+            
+            <div class="poem-first-line-box" style="text-align: center;">
+                <p style="color: #ffffff; font-size: 16px; font-weight: bold; margin: 0;">${firstLine}...</p>
+            </div>
+
+            <div class="poem-card-footer" style="display: flex; justify-content: center; align-items: center; gap: 15px;">
+                <span class="read-more-btn" style="font-size: 13px;">${t.read_full} <i class="fa-solid fa-arrow-left"></i></span>
+                <button class="like-btn-inline" onclick="event.stopPropagation(); toggleLike('${winner.id}')" style="font-size: 16px;">
+                    ${heartIcon} <span class="gold-text">${winner.likes || 0}</span>
+                </button>
+            </div>
+        </div>
+        ${winBadgeHTML}
+    `;
+}
+
+function loadApprovedPoems() {
+    if (isOfflineMode || !isFirebaseReady) return;
+
+    firebase.database().ref('approved_poems').on('value', function(snapshot) {
+        var list = document.getElementById('community-poems-list');
+        if (!list) return;
+        list.innerHTML = ''; 
+
+        if (!snapshot.exists()) {
+            list.innerHTML = `<p style="text-align: center; color: var(--text-muted); padding: 20px;">لا توجد قصائد منشورة حالياً!</p>`;
+            return;
+        }
+
+        var poemsArray = [];
+        snapshot.forEach(function(child) {
+            var item = child.val();
+            item.id = child.key;
+            poemsArray.push(item);
+        });
+        
+        poemsArray = shuffleArray(poemsArray);
+        window.allApprovedPoems = poemsArray; 
+        
+        updateContestBoard(poemsArray);
+
+        const t = translations[currentLang];
+
+        poemsArray.forEach(function(data) {
+            var isLikedByMe = currentUser && data.likedBy && data.likedBy[currentUser.uid] ? true : false;
+            var heartIcon = isLikedByMe ? '❤️' : '🤍';
+            
+            var textLines = (data.text || '').trim().split('\n');
+            var firstLine = textLines[0] || '';
+
+            list.innerHTML += `
+            <div class="premium-card poem-preview-card" onclick="openPoemModal('${data.id}')">
+                <div class="poem-card-header">
+                    <h3 class="gold-text">${data.title}</h3>
+                    <p class="poem-poet-name"><i class="fa-solid fa-feather-pointed"></i> ${t.by_poet} ${data.poet}</p>
+                    <p class="poem-uploader-name"><i class="fa-solid fa-user"></i> ${t.by_user} @${data.uploaderUsername || 'مجهول'}</p>
+                </div>
+                
+                <div class="poem-first-line-box">
+                    <p class="amiri-text">${firstLine}...</p>
+                </div>
+
+                <div class="poem-card-footer">
+                    <span class="read-more-btn">${t.read_full} <i class="fa-solid fa-arrow-left"></i></span>
+                    <button class="like-btn-inline" onclick="event.stopPropagation(); toggleLike('${data.id}')">
+                        ${heartIcon} <span class="gold-text">${data.likes || 0}</span>
+                    </button>
+                </div>
+            </div>`;
+        });
+    });
+}
+
+function openPoemModal(poemId) {
+    const poem = (window.allApprovedPoems || []).find(p => p.id === poemId);
+    if (!poem) return;
+
+    let modal = document.getElementById('lux-poem-modal');
+    if (!modal) {
+        const modalHTML = `
+        <div id="lux-poem-modal" class="lux-modal-overlay" onclick="closePoemModal()">
+            <div class="lux-modal-content" onclick="event.stopPropagation()">
+                <button class="lux-close-btn" onclick="closePoemModal()">&times;</button>
+                <div class="lux-modal-header">
+                    <h2 id="modal-poem-title" class="gold-text"></h2>
+                    <p id="modal-poem-poet" style="color: var(--ruby-purple); font-size: 14px; margin-top: 5px;"></p>
+                    <p id="modal-poem-uploader" style="color: var(--text-muted); font-size: 12px;"></p>
+                </div>
+                <div class="lux-divider"></div>
+                <div class="lux-modal-body">
+                    <p id="modal-poem-text" class="amiri-text" style="white-space: pre-wrap; line-height: 2; font-size: 17px; text-align: center; color: var(--text-main);"></p>
+                </div>
+                <div class="lux-modal-footer">
+                    <button id="modal-like-btn" class="lux-like-action"></button>
+                </div>
+            </div>
+        </div>`;
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        modal = document.getElementById('lux-poem-modal');
+    }
+
+    const t = translations[currentLang];
+    document.getElementById('modal-poem-title').innerText = poem.title;
+    document.getElementById('modal-poem-poet').innerText = `${t.by_poet} ${poem.poet}`;
+    document.getElementById('modal-poem-uploader').innerText = `${t.by_user} @${poem.uploaderUsername || 'مجهول'}`;
+    document.getElementById('modal-poem-text').innerText = poem.text;
+    
+    const isLikedByMe = currentUser && poem.likedBy && poem.likedBy[currentUser.uid] ? true : false;
+    const heartIcon = isLikedByMe ? '❤️' : '🤍';
+    const likeBtn = document.getElementById('modal-like-btn');
+    
+    likeBtn.innerHTML = `${heartIcon} <span class="gold-text" style="font-size: 16px;">${poem.likes || 0}</span>`;
+    likeBtn.onclick = function() {
+        toggleLike(poem.id);
+        setTimeout(() => openPoemModal(poem.id), 200);
+    };
+
+    setTimeout(() => modal.classList.add('active'), 10);
+    document.body.style.overflow = 'hidden'; 
+}
+
+function closePoemModal() {
+    const modal = document.getElementById('lux-poem-modal');
+    if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
     }
 }
 
-function saveUsername() {
-    if (!currentUser || !isFirebaseReady) return;
-    var newUsername = document.getElementById('choose-username-input').value.trim();
-    newUsername = newUsername.replace(/[.#$\[\]]/g, ""); 
-    if (newUsername === '') return alert("الرجاء كتابة اسم صحيح!");
+function toggleLike(poemId) {
+    if (isOfflineMode) return alert("تحتاج إنترنت للإعجاب بالقصائد.");
+    if (!isFirebaseReady || !currentUser) return alert("يجب تسجيل الدخول للإعجاب بالقصائد!");
+    var uid = currentUser.uid;
+    var poemRef = firebase.database().ref('approved_poems/' + poemId);
+    var userLikeRef = poemRef.child('likedBy/' + uid);
 
-    var usernameRef = firebase.database().ref('usernames/' + newUsername);
-    usernameRef.once('value').then(function(snapshot) {
-        if (snapshot.exists()) alert("هذا الاسم مستخدم مسبقاً من شخص آخر!");
-        else {
-            var updates = {};
-            updates['usernames/' + newUsername] = currentUser.uid; 
-            updates['users/' + currentUser.uid + '/username'] = newUsername; 
-            firebase.database().ref().update(updates).then(function() { alert("تم الحفظ بنجاح!"); });
+    userLikeRef.once('value').then(function(snap) {
+        poemRef.child('likes').once('value').then(function(lSnap) {
+            var likes = lSnap.val() || 0;
+            if (snap.exists()) { 
+                userLikeRef.remove(); 
+                poemRef.child('likes').set(likes - 1); 
+            } else { 
+                userLikeRef.set(true); 
+                poemRef.child('likes').set(likes + 1); 
+            }
+        });
+    });
+}
+
+// ==========================================
+// 6. النشر والموافقة
+// ==========================================
+function submitPoem() {
+    if (isOfflineMode || !isFirebaseReady) {
+        return alert("لا يوجد اتصال بالإنترنت أو لم يتم اتصال Firebase بعد.");
+    }
+    
+    if (!currentUser) {
+        return alert("سجل دخولك أولاً لكي تتمكن من النشر!");
+    }
+
+    var nameInput = document.getElementById('pub-name');
+    var titleInput = document.getElementById('pub-title');
+    var poemInput = document.getElementById('pub-poem');
+
+    if (!nameInput || !titleInput || !poemInput) {
+        return alert("خطأ: الحقول غير موجودة في الواجهة.");
+    }
+
+    var name = nameInput.value.trim();
+    var title = titleInput.value.trim();
+    var text = poemInput.value.trim();
+
+    if (name === '' || title === '' || text === '') {
+        return alert("يرجى ملء جميع الحقول!");
+    }
+
+    var uploaderName = currentUsername || (currentUser.email ? currentUser.email.split('@')[0] : "مستخدم");
+
+    var btn = document.getElementById('pub-btn');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerText = "جاري الإرسال...";
+    }
+
+    firebase.database().ref('pending_poems').push({
+        poet: name,
+        title: title,
+        text: text,
+        uploaderUsername: uploaderName,
+        uid: currentUser.uid,
+        likes: 0,
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+    }).then(function() {
+        alert("تم إرسال قصيدتك بنجاح! هي الآن قيد المراجعة وبانتظار الموافقة.");
+        nameInput.value = '';
+        titleInput.value = '';
+        poemInput.value = '';
+    }).catch(function(error) {
+        console.error("Publish Error:", error);
+        alert("فشل إرسال القصيدة:\n" + error.message);
+    }).finally(function() {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerText = "نشر القصيدة";
         }
     });
 }
 
-// ==========================================
-// 8. جلب وعرض القصائد
-// ==========================================
-function loadApprovedPoems() {
-    if (!isFirebaseReady) return;
+function loadPendingPoems() {
+    if (isOfflineMode || !isFirebaseReady) return;
+    var adminContainer = document.getElementById('admin-pending-list');
+    if (!adminContainer) return; 
 
-    try {
-        firebase.database().ref('approved_poems').on('value', function(snapshot) {
-            var list = document.getElementById('community-poems-li
+    firebase.database().ref('pending_poems').on('value', function(snapshot) {
+        adminContainer.innerHTML = '';
+        if (!snapshot.exists()) {
+            adminContainer.innerHTML = '<p style="color: var(--text-muted); text-align: center;">لا توجد قصائد بانتظار الموافقة.</p>';
+            return;
+        }
+
+        snapshot.forEach(function(child) {
+            var data = child.val();
+            var id = child.key;
+
+            adminContainer.innerHTML += `
+            <div class="premium-card" style="padding: 15px; margin-bottom: 15px; border: 1px solid gold;">
+                <h4 class="gold-text">${data.title}</h4>
+                <p style="font-size: 12px; color: var(--ruby-purple);">الشاعر: ${data.poet} | بواسطة: @${data.uploaderUsername}</p>
+                <p style="white-space: pre-wrap; font-size: 13px;">${data.text}</p>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button onclick="approvePoem('${id}')" style="background: green; color: white; border: none; padding: 6px 15px; border-radius: 5px; cursor: pointer;">موافقة ونشر</button>
+                    <button onclick="rejectPoem('${id}')" style="background: red; color: white; border: none; padding: 6px 15px; border-radius: 5px; cursor: pointer;">رفض وحذف</button>
+                </div>
+            </div>`;
+        });
+    });
+}
+
+function approvePoem(poemId) {
+    if (!isFirebaseReady || !currentUser) return;
+    var pendingRef = firebase.database().ref('pending_poems/' + poemId);
+    pendingRef.once('value').then(function(snapshot) {
+        if (snapshot.exists()) {
+            var poemData = snapshot.val();
+            firebase.database().ref('approved_poems').push(poemData).then(function() {
+                pendingRef.remove();
+                alert("تمت الموافقة والنشر بنجاح!");
+            });
+        }
+    });
+}
+
+function rejectPoem(poemId) {
+    if (!isFirebaseReady || !currentUser) return;
+    if (confirm("هل تريد حذف هذه القصيدة المعلقة نهائياً؟")) {
+        firebase.database().ref('pending_poems/' + poemId).remove().then(function() {
+            alert("تم حذف القصيدة.");
+        });
+    }
+}
+
+// ==========================================
+// 7. التنقل والتشغيل عند البداية
+// ==========================================
+function switchTab(tabId, btn) {
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+    document.getElementById('section-' + tabId).classList.add('active');
+    btn.classList.add('active');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        const splashScreen = document.getElementById('splash-screen');
+        if (splashScreen) {
+            splashScreen.classList.add('splash-hidden');
+            setTimeout(() => splashScreen.remove(), 800);
+        }
+    }, 2500);
+
+    changeLanguage(currentLang);
+    checkInternetConnection(); 
+    loadAudioList(); 
+    setDailyQuote(); 
+
+    const langSelect = document.getElementById('language-select');
+    if(langSelect) {
+        langSelect.value = currentLang;
+        langSelect.addEventListener('change', (e) => changeLanguage(e.target.value));
+    }
+});
