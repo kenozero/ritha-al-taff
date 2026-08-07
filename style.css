@@ -67,6 +67,11 @@ h1 {
     background: var(--gold); box-shadow: var(--gold-glow);
 }
 
+html[dir="ltr"] .premium-card::before {
+    right: auto;
+    left: 0;
+}
+
 .custom-audio-player {
     padding: 15px 20px;
     background: var(--bg-dark);
@@ -117,8 +122,6 @@ h1 {
 .time-display {
     font-size: 12px;
     color: var(--text-muted);
-    text-align: left;
-    direction: ltr;
 }
 
 input[type=range] {
@@ -140,6 +143,9 @@ input[type=range]::-webkit-slider-runnable-track {
     cursor: pointer;
     background: linear-gradient(to left, var(--gold) var(--progress, 0%), var(--ruby-purple) var(--progress, 0%));
     border-radius: 2px;
+}
+html[dir="ltr"] input[type=range]::-webkit-slider-runnable-track {
+    background: linear-gradient(to right, var(--gold) var(--progress, 0%), var(--ruby-purple) var(--progress, 0%));
 }
 
 .premium-board {
@@ -173,3 +179,50 @@ input[type="text"], input[type="email"], input[type="password"], textarea, selec
 .nav-item { background: none; border: none; color: var(--text-muted); font-size: 20px; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
 .nav-item.active { color: var(--gold); text-shadow: var(--gold-glow); transform: translateY(-3px); }
 .nav-text { font-size: 12px; margin-top: 5px; }
+
+/* شاشة الترحيب */
+.splash-screen {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(135deg, var(--bg-dark) 0%, #1a0f2e 100%);
+    z-index: 99999; display: flex; justify-content: center; align-items: center;
+    flex-direction: column; transition: opacity 0.8s ease, visibility 0.8s ease;
+}
+.splash-content { text-align: center; animation: pulseSplash 2s infinite; }
+.splash-content h1 { font-size: 38px; text-shadow: 0 0 25px rgba(212, 175, 55, 0.7); }
+.splash-hidden { opacity: 0; visibility: hidden; }
+@keyframes pulseSplash { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+/* النافذة الفخمة والشعراء */
+.poem-preview-card { padding: 18px; margin-bottom: 15px; cursor: pointer; transition: transform 0.2s ease, border-color 0.2s ease; }
+.poem-preview-card:active { transform: scale(0.98); }
+.poem-poet-name { color: var(--ruby-purple); font-size: 0.85rem; margin-top: 4px; }
+.poem-uploader-name { color: var(--text-muted); font-size: 0.75rem; margin-bottom: 10px; }
+.poem-first-line-box {
+    background: rgba(255, 255, 255, 0.03); padding: 10px 14px;
+    border-inline-start: 3px solid transparent; border-inline-end: 3px solid var(--ruby-purple);
+    border-radius: 6px; margin-bottom: 12px;
+}
+.poem-first-line-box p { color: var(--text-main); font-size: 15px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.poem-card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed rgba(255, 255, 255, 0.1); padding-top: 10px; }
+.read-more-btn { color: var(--gold); font-size: 12px; font-weight: bold; }
+.like-btn-inline { background: none; border: none; cursor: pointer; font-size: 18px; }
+
+.lux-modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    z-index: 99999; display: flex; align-items: center; justify-content: center;
+    opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; padding: 20px;
+}
+.lux-modal-overlay.active { opacity: 1; visibility: visible; }
+.lux-modal-content {
+    background: var(--card-bg); border: 1px solid var(--gold); border-radius: 16px;
+    width: 100%; max-width: 500px; max-height: 80vh; display: flex; flex-direction: column;
+    padding: 24px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 20px rgba(212, 175, 55, 0.2);
+    transform: scale(0.85); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.lux-modal-overlay.active .lux-modal-content { transform: scale(1); }
+.lux-close-btn { position: absolute; top: 12px; right: auto; left: 15px; background: none; border: none; color: var(--text-muted); font-size: 26px; cursor: pointer; }
+html[dir="ltr"] .lux-close-btn { left: auto; right: 15px; }
+.lux-divider { height: 1px; background: linear-gradient(90deg, transparent, var(--ruby-purple), transparent); margin: 15px 0; border: none; }
+.lux-modal-body { overflow-y: auto; padding-inline-end: 5px; margin-bottom: 15px; }
+.lux-like-action { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--ruby-purple); padding: 8px 20px; border-radius: 20px; color: var(--text-main); cursor: pointer; width: 100%; }
