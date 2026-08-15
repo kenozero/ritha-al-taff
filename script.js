@@ -301,26 +301,15 @@ function changeTheme() {
 }
 
 // ==========================================
-// 4. إدارة حسابات المستخدمين و Firebase Auth
+// 4. إدارة حسابات المستخدمين و Firebase Auth (أونلاين دائماً)
 // ==========================================
-var isOfflineMode = false;
 var isFirebaseReady = false;
 var currentUser = null; 
 var currentUsername = null; 
 window.allApprovedPoems = [];
 
-function checkInternetConnection() {
-    if (!navigator.onLine) {
-        isOfflineMode = true;
-    } else {
-        isOfflineMode = false;
-        initFirebaseApp(); 
-    }
-}
 
 function initFirebaseApp() {
-    if (isOfflineMode) return; 
-
     try {
         var firebaseConfig = {
             apiKey: "AIzaSyB5RE7ZW1xWH_dQPoO0xigEKWj17QUQJAE",
@@ -384,7 +373,7 @@ function setupFirebaseAuth() {
 }
 
 function loginUser() {
-    if (isOfflineMode || !isFirebaseReady) return alert("لا يوجد اتصال بالإنترنت.");
+    if (!isFirebaseReady) return alert("انتظر اتصال قاعدة البيانات.");
     
     var emailInput = document.getElementById('auth-email');
     var passInput = document.getElementById('auth-pass');
@@ -404,7 +393,7 @@ function loginUser() {
 }
 
 function registerUser() {
-    if (isOfflineMode || !isFirebaseReady) return alert("لا يوجد اتصال بالإنترنت.");
+    if (!isFirebaseReady) return alert("انتظر اتصال قاعدة البيانات.");
 
     var emailInput = document.getElementById('auth-email');
     var passInput = document.getElementById('auth-pass');
@@ -453,7 +442,7 @@ function saveUsername() {
 }
 
 function resetPassword() {
-    if (isOfflineMode || !isFirebaseReady) return alert("لا يوجد اتصال بالإنترنت.");
+    if (!isFirebaseReady) return alert("انتظر اتصال قاعدة البيانات.");
 
     var emailInput = document.getElementById('auth-email');
 
@@ -578,7 +567,7 @@ function updateContestBoard(poemsArray) {
 }
 
 function loadApprovedPoems() {
-    if (isOfflineMode || !isFirebaseReady) return;
+    if (!isFirebaseReady) return;
 
     firebase.database().ref('approved_poems').on('value', function(snapshot) {
         var list = document.getElementById('community-poems-list');
@@ -691,7 +680,6 @@ function closePoemModal() {
 }
 
 function toggleLike(poemId) {
-    if (isOfflineMode) return alert("تحتاج إنترنت للإعجاب بالقصائد.");
     if (!isFirebaseReady || !currentUser) return alert("يجب تسجيل الدخول للإعجاب بالقصائد!");
     var uid = currentUser.uid;
     var poemRef = firebase.database().ref('approved_poems/' + poemId);
@@ -715,8 +703,8 @@ function toggleLike(poemId) {
 // 6. النشر والموافقة
 // ==========================================
 function submitPoem() {
-    if (isOfflineMode || !isFirebaseReady) {
-        return alert("لا يوجد اتصال بالإنترنت أو لم يتم اتصال Firebase بعد.");
+    if (!isFirebaseReady) {
+        return alert("لم يتم الاتصال بقاعدة البيانات بعد.");
     }
     
     if (!currentUser) {
@@ -772,7 +760,7 @@ function submitPoem() {
 }
 
 function loadPendingPoems() {
-    if (isOfflineMode || !isFirebaseReady) return;
+    if (!isFirebaseReady) return;
     var adminContainer = document.getElementById('admin-pending-list');
     if (!adminContainer) return; 
 
@@ -844,7 +832,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 2500);
 
     changeLanguage(currentLang);
-    checkInternetConnection(); 
+    initFirebaseApp(); // تهيئة الفايربيس مباشرة بدون التحقق من الأوفلاين
     loadAudioList(); 
     setDailyQuote(); 
 
