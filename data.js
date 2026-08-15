@@ -41,7 +41,7 @@ const audioData = [
   { id: 40, title: "  يغادر كل ملك ", reciter: " باسم الكربلائي", poet: " رحيم أبو عليوي الكاظمي", file: "audio/shuraf40.mp3", duration: "05:00" },
   { id: 41, title: "يمه ذكريني من تمر زفة شباب ", reciter: " حمزة الصغير", poet: " كاظم المنظور الكربلائي", file: "audio/shuraf41.mp3", duration: "05:00" },
   { id: 42, title: "شلون انساك", reciter: " حمزة الصغير", poet: "المرحوم الشيخ جبار البناء الكربلائي ", file: "audio/shuraf42.mp3", duration: "05:00" },
-  { id: 43, title: "يمة", reciter: " باسم الكربلائي", poet: " إيهاب المالكي", file: "audio/shuraf43.mp3", duration: "05:00" },
+  { id: 43, title: "يمه", reciter: " باسم الكربلائي", poet: " إيهاب المالكي", file: "audio/shuraf43.mp3", duration: "05:00" },
   { id: 44, title: " مو بس اخو ", reciter: " باسم الكربلائي", poet: "علي السقاي", file: "audio/shuraf44.mp3", duration: "05:00" },
   { id: 45, title: "  ما ماتت من مرض", reciter: " ذو الفقار الكعبي", poet: "أحمد الهلباوي", file: "audio/shuraf45.mp3", duration: "05:00" },
   { id: 46, title: "مود عينك", reciter: " عمار الكناني", poet: " الحسيني السيد موفق الموسوي", file: "audio/shuraf46.mp3", duration: "05:00" },
@@ -99,4 +99,4 @@ const audioData = [
   { id: 98, title: "فصول الاربعة", reciter: " باسم الكربلائي", poet: " سيد عبدالخالق المحنة", file: "audio/shuraf98.mp3", duration: "05:00" },
   { id: 99, title: " موت مهيوب", reciter: "باسم الكربلائي", poet: " علي السقاي", file: "audio/shuraf99.mp3", duration: "05:00" },
   { id: 100, title: "  انه ام الراوي", reciter: " باسم الكربلائي", poet: "سيد عبدالخالق المحنة ", file: "audio/shuraf100.mp3", duration: "05:00" }
-];shuraf
+];
