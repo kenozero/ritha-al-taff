@@ -1,49 +1,21 @@
 :root {
-    --bg-dark: #050505;
-    --card-bg: #0d0d0d;
-    --gold: #D4AF37;
-    --gold-glow: 0 0 15px rgba(212, 175, 55, 0.4);
-    --ruby-purple: #4B0082; 
-    --purple-glow: 0 0 20px rgba(75, 0, 130, 0.4);
-    --text-main: #FFFFFF;
-    --text-muted: #888888;
+    --bg-dark: #050505; --card-bg: #111111; --gold: #D4AF37; 
+    --gold-glow: 0 0 15px rgba(212, 175, 55, 0.3); --ruby-purple: #4B0082; 
+    --purple-glow: 0 0 20px rgba(75, 0, 130, 0.3); --text-main: #FFFFFF; --text-muted: #888888;
 }
 
 [data-theme="light"] {
-    --bg-dark: #F5F5F5;
-    --card-bg: #FFFFFF;
-    --text-main: #000000;
-    --text-muted: #555555;
+    --bg-dark: #F5F5F5; --card-bg: #FFFFFF; --text-main: #000000; --text-muted: #555555;
     --purple-glow: 0 0 15px rgba(75, 0, 130, 0.1);
 }
 
-* {
-    margin: 0; padding: 0; box-sizing: border-box;
-    font-family: 'Cairo', sans-serif;
-    transition: background-color 0.3s, color 0.3s;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; transition: background-color 0.3s, color 0.3s; }
+body { background-color: var(--bg-dark); color: var(--text-main); padding-bottom: 80px; }
 
-body {
-    background-color: var(--bg-dark);
-    color: var(--text-main);
-    padding-bottom: 80px;
-}
+header { text-align: center; padding: 20px; background: var(--card-bg); border-bottom: 2px solid var(--gold); box-shadow: var(--gold-glow); }
+h1 { color: var(--gold); font-family: 'Amiri', serif; font-size: 28px; text-shadow: var(--gold-glow), 0 0 10px var(--ruby-purple); }
 
-header {
-    text-align: center; padding: 20px;
-    background: var(--card-bg);
-    border-bottom: 2px solid var(--gold);
-    box-shadow: var(--gold-glow);
-}
-
-h1 { 
-    color: var(--gold); 
-    font-family: 'Amiri', serif; 
-    font-size: 28px; 
-    text-shadow: var(--gold-glow), 0 0 10px var(--ruby-purple), 0 0 20px var(--ruby-purple); 
-}
-
-.gold-text { color: var(--gold); text-shadow: 0 0 8px rgba(212,175,55,0.3); }
+.gold-text { color: var(--gold); text-shadow: 0 0 8px rgba(212,175,55,0.2); }
 .amiri-text { font-family: 'Amiri', serif; font-size: 18px; line-height: 1.8; }
 .text-center { text-align: center; }
 
@@ -51,178 +23,93 @@ h1 {
 .tab-content.active { display: block; animation: fadeUp 0.4s ease; }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-.premium-card {
-    background: var(--card-bg);
-    padding: 0;
-    border-radius: 15px;
-    margin-bottom: 20px;
-    border: 1px solid var(--ruby-purple);
-    box-shadow: var(--purple-glow);
-    position: relative;
-    overflow: hidden;
-}
-
-.premium-card::before {
-    content: ''; position: absolute; top: 0; right: 0; width: 4px; height: 100%;
-    background: var(--gold); box-shadow: var(--gold-glow);
-}
-
-html[dir="ltr"] .premium-card::before {
-    right: auto;
-    left: 0;
-}
-
-.custom-audio-player {
-    padding: 15px 20px;
-    background: var(--bg-dark);
-    border-top: 1px solid rgba(212, 175, 55, 0.2);
-}
-
-.player-main-row {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.controls-group {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.play-pause-btn {
-    background: var(--gold);
-    color: #000;
-    border: none;
-    width: 45px; height: 45px;
-    border-radius: 50%;
-    font-size: 18px;
-    cursor: pointer;
-    box-shadow: var(--gold-glow);
-    display: flex; justify-content: center; align-items: center;
-}
-
-.skip-btn {
-    background: transparent;
-    border: none;
-    color: var(--gold);
-    font-size: 22px;
-    cursor: pointer;
-    transition: transform 0.2s;
-}
-.skip-btn:active { transform: scale(0.8); color: var(--text-main); }
-
-.progress-container {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.time-display {
-    font-size: 12px;
-    color: var(--text-muted);
-}
-
-input[type=range] {
-    -webkit-appearance: none;
-    width: 100%;
-    background: transparent;
-}
-input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    height: 14px; width: 14px;
-    border-radius: 50%;
-    background: var(--gold);
-    cursor: pointer;
-    margin-top: -5px;
-    box-shadow: var(--gold-glow);
-}
-input[type=range]::-webkit-slider-runnable-track {
-    width: 100%; height: 4px;
-    cursor: pointer;
-    background: linear-gradient(to left, var(--gold) var(--progress, 0%), var(--ruby-purple) var(--progress, 0%));
-    border-radius: 2px;
-}
-html[dir="ltr"] input[type=range]::-webkit-slider-runnable-track {
-    background: linear-gradient(to right, var(--gold) var(--progress, 0%), var(--ruby-purple) var(--progress, 0%));
-}
-
-.premium-board {
-    background: linear-gradient(135deg, var(--card-bg) 0%, #1a0f2e 100%);
-    border: 1px solid var(--ruby-purple);
-    box-shadow: var(--purple-glow);
-    padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 20px;
-}
-
-input[type="text"], input[type="email"], input[type="password"], textarea, select {
-    width: 100%; padding: 12px; margin-bottom: 15px;
-    background: var(--bg-dark); color: var(--text-main);
+/* أشكال الإدخال والأزرار وإصلاح النصوص المخفية (Placeholder) */
+.search-container input, input[type="text"], input[type="email"], input[type="password"], textarea, select {
+    width: 100%; padding: 12px; margin-bottom: 15px; background: var(--bg-dark); color: var(--text-main);
     border: 1px solid var(--ruby-purple); border-radius: 8px; outline: none;
 }
+input::placeholder, textarea::placeholder { color: #888888 !important; opacity: 1; }
+input:focus, textarea:focus { border-color: var(--gold); box-shadow: var(--gold-glow); }
+.search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); font-size: 18px; }
+html[dir="ltr"] .search-icon { left: auto; right: 15px; }
 
-.gold-btn {
-    width: 100%; padding: 15px; background: var(--gold);
-    color: #000; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer;
+/* إصلاح تداخل القوائم المنسدلة */
+select {
+    padding-inline-end: 35px !important;
+    -webkit-appearance: none; -moz-appearance: none; appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="%23D4AF37" viewBox="0 0 16 16"><path d="M4 6h8l-4 6z"/></svg>');
+    background-repeat: no-repeat; background-position: left 15px center;
 }
-.setting-item {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 15px; background: var(--card-bg); border-radius: 8px; margin-bottom: 10px;
-    border: 1px solid rgba(212, 175, 55, 0.2);
+html[dir="ltr"] select { background-position: right 15px center; }
+
+.btn-group { display: flex; gap: 10px; margin-bottom: 15px; }
+.btn-half { flex: 1; }
+.gold-btn { padding: 15px; background: var(--gold); color: #000; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; width: 100%; }
+.secondary-btn { background: var(--ruby-purple); color: #fff; }
+.outline-btn { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
+.forgot-btn { background: none; border: none; color: var(--gold); cursor: pointer; text-decoration: underline; width: 100%; }
+.logout-btn { background: none; border: none; color: #ff4c4c; cursor: pointer; font-size: 14px; }
+.flex-between { display: flex; justify-content: space-between; align-items: center; }
+.flex-align-center { display: flex; align-items: center; }
+.cursor-pointer { cursor: pointer; }
+
+/* البطاقات والإعدادات */
+.premium-card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--ruby-purple); box-shadow: var(--purple-glow); padding: 15px; margin-bottom: 15px; }
+.setting-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: var(--card-bg); border-radius: 8px; margin-bottom: 10px; border: 1px solid rgba(212, 175, 55, 0.2); }
+.section-divider { text-align: center; border-bottom: 1px dashed var(--gold); margin: 20px 0 15px; padding-bottom: 5px; font-size: 18px; font-weight: bold; }
+
+/* بطاقات القصائد المصغرة (سطر واحد فقط) */
+.poem-preview-card { cursor: pointer; transition: transform 0.2s; padding: 16px; }
+.poem-preview-card:active { transform: scale(0.98); }
+.winner-badge { text-align: center; color: var(--gold); margin-bottom: 8px; font-size: 16px; font-weight: bold; }
+.poem-card-header { border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; margin-bottom: 10px; }
+.poem-title { font-size: 18px; margin-bottom: 8px; text-align: center; }
+.poem-meta-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); }
+.poem-meta-row span i { color: var(--ruby-purple); margin-inline-end: 4px; }
+
+/* تقييد النص لسطر واحد إجبارياً مع إصلاح الحركات (التشكيل) */
+.poem-single-line { background: rgba(255, 255, 255, 0.02); padding: 12px; border-radius: 8px; border-inline-start: 3px solid var(--ruby-purple); margin-bottom: 12px; }
+.poem-single-line p { 
+    margin: 0; font-size: 16px; color: var(--text-main); 
+    white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; 
+    line-height: 2.2 !important; display: block; width: 100%;
 }
 
-.bottom-nav {
-    position: fixed; bottom: 0; left: 0; right: 0; height: 70px;
-    background: var(--card-bg); display: flex; justify-content: space-around; align-items: center;
-    border-top: 2px solid var(--gold); box-shadow: var(--purple-glow); z-index: 1000;
+.poem-card-footer { display: flex; justify-content: space-between; align-items: center; }
+.read-more-text { font-size: 12px; color: var(--gold); font-weight: bold; }
+.like-btn-inline { background: none; border: none; font-size: 16px; cursor: pointer; }
+
+/* النافذة المنبثقة (صفحة كاملة Full Page) */
+.full-page-modal {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: var(--bg-dark); z-index: 99999;
+    display: none; flex-direction: column;
+    transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
+.full-page-modal.active { transform: translateY(0); }
+
+.modal-header-nav { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--card-bg); border-bottom: 1px solid var(--ruby-purple); }
+.back-btn { background: none; border: none; color: var(--gold); font-size: 20px; cursor: pointer; }
+.modal-main-title { font-size: 20px; margin: 0; text-align: center; flex: 1; }
+
+.modal-meta-info { display: flex; justify-content: space-around; padding: 12px; background: rgba(75, 0, 130, 0.1); border-bottom: 1px solid rgba(212, 175, 55, 0.2); font-size: 13px; color: var(--text-main); }
+.meta-item i { color: var(--gold); margin-inline-end: 5px; }
+
+.modal-body-content { flex: 1; overflow-y: auto; padding: 25px 20px; text-align: center; }
+.modal-body-content p { white-space: pre-wrap; color: var(--text-main); font-size: 19px; line-height: 2.2; }
+
+.modal-bottom-actions { display: flex; gap: 10px; padding: 15px 20px; background: var(--card-bg); border-top: 1px solid var(--gold); box-shadow: 0 -5px 15px rgba(0,0,0,0.5); }
+.action-btn { flex: 1; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; }
+.like-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--ruby-purple); color: var(--text-main); }
+.outline-gold { background: rgba(212,175,55,0.1); border: 1px solid var(--gold); color: var(--gold); }
+
+/* شريط التنقل السفلي */
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 70px; background: var(--card-bg); display: flex; justify-content: space-around; align-items: center; border-top: 2px solid var(--gold); box-shadow: var(--purple-glow); z-index: 1000; }
 .nav-item { background: none; border: none; color: var(--text-muted); font-size: 20px; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
 .nav-item.active { color: var(--gold); text-shadow: var(--gold-glow); transform: translateY(-3px); }
 .nav-text { font-size: 12px; margin-top: 5px; }
 
 /* شاشة الترحيب */
-.splash-screen {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: linear-gradient(135deg, var(--bg-dark) 0%, #1a0f2e 100%);
-    z-index: 99999; display: flex; justify-content: center; align-items: center;
-    flex-direction: column; transition: opacity 0.8s ease, visibility 0.8s ease;
-}
+.splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, var(--bg-dark) 0%, #1a0f2e 100%); z-index: 999999; display: flex; justify-content: center; align-items: center; flex-direction: column; transition: opacity 0.8s ease, visibility 0.8s ease; }
 .splash-content { text-align: center; animation: pulseSplash 2s infinite; }
-.splash-content h1 { font-size: 38px; text-shadow: 0 0 25px rgba(212, 175, 55, 0.7); }
-.splash-hidden { opacity: 0; visibility: hidden; }
 @keyframes pulseSplash { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-
-/* النافذة الفخمة والشعراء */
-.poem-preview-card { padding: 18px; margin-bottom: 15px; cursor: pointer; transition: transform 0.2s ease, border-color 0.2s ease; }
-.poem-preview-card:active { transform: scale(0.98); }
-.poem-poet-name { color: var(--ruby-purple); font-size: 0.85rem; margin-top: 4px; }
-.poem-uploader-name { color: var(--text-muted); font-size: 0.75rem; margin-bottom: 10px; }
-.poem-first-line-box {
-    background: rgba(255, 255, 255, 0.03); padding: 10px 14px;
-    border-inline-start: 3px solid transparent; border-inline-end: 3px solid var(--ruby-purple);
-    border-radius: 6px; margin-bottom: 12px;
-}
-.poem-first-line-box p { color: var(--text-main); font-size: 15px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.poem-card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed rgba(255, 255, 255, 0.1); padding-top: 10px; }
-.read-more-btn { color: var(--gold); font-size: 12px; font-weight: bold; }
-.like-btn-inline { background: none; border: none; cursor: pointer; font-size: 18px; }
-
-.lux-modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-    background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-    z-index: 99999; display: flex; align-items: center; justify-content: center;
-    opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; padding: 20px;
-}
-.lux-modal-overlay.active { opacity: 1; visibility: visible; }
-.lux-modal-content {
-    background: var(--card-bg); border: 1px solid var(--gold); border-radius: 16px;
-    width: 100%; max-width: 500px; max-height: 80vh; display: flex; flex-direction: column;
-    padding: 24px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 20px rgba(212, 175, 55, 0.2);
-    transform: scale(0.85); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-.lux-modal-overlay.active .lux-modal-content { transform: scale(1); }
-.lux-close-btn { position: absolute; top: 12px; right: auto; left: 15px; background: none; border: none; color: var(--text-muted); font-size: 26px; cursor: pointer; }
-html[dir="ltr"] .lux-close-btn { left: auto; right: 15px; }
-.lux-divider { height: 1px; background: linear-gradient(90deg, transparent, var(--ruby-purple), transparent); margin: 15px 0; border: none; }
-.lux-modal-body { overflow-y: auto; padding-inline-end: 5px; margin-bottom: 15px; }
-.lux-like-action { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--ruby-purple); padding: 8px 20px; border-radius: 20px; color: var(--text-main); cursor: pointer; width: 100%; }
