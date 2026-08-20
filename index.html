@@ -90,13 +90,16 @@
                     <span data-i18n="account_name">اسم الحساب</span>
                     <span id="display-username" class="gold-text" style="font-weight: bold;">غير مسجل</span>
                 </div>
-                <div onclick="window.open('https://www.tiktok.com/@KENO_ZERO', '_blank')" class="setting-item cursor-pointer">
+                
+                <!-- التعديل هنا: تحويل الزر إلى رابط قياسي (a) ليتمكن التطبيق من فتحه خارجياً -->
+                <a href="https://www.tiktok.com/@KENO_ZERO" target="_blank" class="setting-item cursor-pointer" style="text-decoration: none; color: inherit;">
                     <span data-i18n="contact_dev">مراسلة المطور</span>
                     <div class="flex-align-center" style="gap: 8px;">
                         <span style="color: #ccc; font-size: 13px;">@KENO_ZERO</span>
                         <i class="fa-brands fa-tiktok gold-text"></i>
                     </div>
-                </div>
+                </a>
+
                 <div class="setting-item">
                     <span data-i18n="language">اللغة</span>
                     <select id="language-select" onchange="changeLanguage(this.value)">
