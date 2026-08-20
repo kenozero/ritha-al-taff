@@ -333,6 +333,35 @@ function switchTab(tabId, btn) {
     btn.classList.add('active');
 }
 
+// ==========================================
+// 5. جلب رابط المطور من فايربيس وفتحه خارجياً
+// ==========================================
+function openTikTok() {
+    var fallbackUrl = "https://www.tiktok.com/@KENO_ZERO";
+
+    if (!isFirebaseReady) {
+        executeLink(fallbackUrl);
+        return;
+    }
+
+    firebase.database().ref('app_settings/developer_link').once('value').then(function(snapshot) {
+        var finalUrl = snapshot.exists() ? snapshot.val() : fallbackUrl;
+        executeLink(finalUrl);
+    }).catch(function(error) {
+        executeLink(fallbackUrl);
+    });
+}
+
+function executeLink(url) {
+    if (window.median && window.median.openURL) {
+        window.median.openURL.external(url);
+    } else if (window.gonative && window.gonative.openURL) {
+        window.gonative.openURL.external(url);
+    } else {
+        window.open(url, '_blank');
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => { document.getElementById('splash-screen')?.remove(); }, 2500);
     changeLanguage(currentLang); initFirebaseApp(); setDailyQuote(); 
